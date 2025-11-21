@@ -1,0 +1,826 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Cluster Summary",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "graph",
+      "title": "Cluster CPU usage (cores)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "Usage"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_allocatable_cpu_cores{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Allocatable"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "graph",
+      "title": "Cluster memory usage (bytes)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(container_memory_working_set_bytes{image!=\"\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Usage"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_allocatable_memory_bytes{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Allocatable"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "graph",
+      "title": "Node count (total / ready / not ready)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_node_info{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Total"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\", status=\"true\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Ready"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\", status!=\"true\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Not Ready"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "graph",
+      "title": "Pod count (total / running / pending / failed)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_info{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Total"
+        },
+        {
+          "refId": "B",
+          "expr": "count(kube_pod_status_phase{exported_namespace=~\"$namespace\", phase=\"Running\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Running"
+        },
+        {
+          "refId": "C",
+          "expr": "count(kube_pod_status_phase{exported_namespace=~\"$namespace\", phase=\"Pending\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Pending"
+        },
+        {
+          "refId": "D",
+          "expr": "count(kube_pod_status_phase{exported_namespace=~\"$namespace\", phase=\"Failed\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Failed"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "graph",
+      "title": "Container restarts (rate)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(kube_pod_container_status_restarts_total{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "Restart rate"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "graph",
+      "title": "OOM kills (cluster-wide)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_oom_events_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "OOM events / s"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "Workload & Namespace Utilization",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 }
+    },
+    {
+      "id": 9,
+      "type": "graph",
+      "title": "CPU usage by namespace",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 26 },
+      "lines": true,
+      "linewidth": 1,
+      "stack": true,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "graph",
+      "title": "Memory usage by namespace (bytes)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 26 },
+      "lines": true,
+      "linewidth": 1,
+      "stack": true,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (container_memory_working_set_bytes{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Top 10 CPU pods",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 34 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m])))",
+          "legendFormat": "{{namespace}}/{{pod}}",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Top 10 memory pods",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 34 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace, pod) (container_memory_working_set_bytes{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}))",
+          "legendFormat": "{{namespace}}/{{pod}}",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "row",
+      "title": "Pod Scheduling & Stability",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 }
+    },
+    {
+      "id": 14,
+      "type": "graph",
+      "title": "Pod phases",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 43 },
+      "lines": true,
+      "linewidth": 1,
+      "stack": true,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count by (phase) (kube_pod_status_phase{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{phase}}"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "graph",
+      "title": "Pods in CrashLoopBackOff",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 43 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_container_status_waiting_reason{exported_namespace=~\"$namespace\", reason=\"CrashLoopBackOff\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "CrashLoopBackOff pods"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "graph",
+      "title": "Unschedulable pods",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 51 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(kube_pod_status_unschedulable{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Unschedulable pods"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "type": "graph",
+      "title": "Container restarts per namespace (1h increase)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 51 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace) (increase(kube_pod_container_status_restarts_total{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[1h]))",
+          "legendFormat": "{{exported_namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "graph",
+      "title": "Pod churn (creations vs failures)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 59 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(kube_pod_created{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[15m]))",
+          "legendFormat": "Pod creations / s"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(kube_pod_status_phase{exported_namespace=~\"$namespace\", phase=\"Failed\", pipelineBranch=~\"$pipelineBranch\"}[15m]))",
+          "legendFormat": "Failed pods (rate)"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "type": "row",
+      "title": "Node Health",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 67 }
+    },
+    {
+      "id": 20,
+      "type": "graph",
+      "title": "Node CPU utilization (%)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 68 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum by (instance) (rate(node_cpu_seconds_total{mode!=\"idle\", pipelineBranch=~\"$pipelineBranch\"}[5m])) / sum by (instance) (rate(node_cpu_seconds_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "graph",
+      "title": "Node memory utilization (%)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 68 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes{pipelineBranch=~\"$pipelineBranch\"} / node_memory_MemTotal_bytes{pipelineBranch=~\"$pipelineBranch\"}))",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "graph",
+      "title": "Node load (1m) vs CPU cores",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 76 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_load1{pipelineBranch=~\"$pipelineBranch\"}",
+          "legendFormat": "{{instance}} load1"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (kube_node_status_allocatable_cpu_cores{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{instance}} alloc CPU cores"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "graph",
+      "title": "Node network I/O (bytes/s)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 76 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{device!~\"lo\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} RX"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{device!~\"lo\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} TX"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "type": "row",
+      "title": "Storage & Disk IO",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 84 }
+    },
+    {
+      "id": 25,
+      "type": "graph",
+      "title": "Node filesystem usage (%)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 85 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"} - node_filesystem_free_bytes{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"}) / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"}",
+          "legendFormat": "{{instance}} {{mountpoint}}"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "type": "graph",
+      "title": "Node filesystem inode usage (%)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 85 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (node_filesystem_files{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"} - node_filesystem_files_free{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"}) / node_filesystem_files{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"}",
+          "legendFormat": "{{instance}} {{mountpoint}}"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "type": "graph",
+      "title": "Node disk IO (reads/writes per second)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 93 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_disk_reads_completed_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} reads/s"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_disk_writes_completed_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} writes/s"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "type": "graph",
+      "title": "Node disk throughput (bytes/s)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 93 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_disk_read_bytes_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} read B/s"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_disk_written_bytes_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} written B/s"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "type": "row",
+      "title": "Requests & Limits vs Usage",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 101 }
+    },
+    {
+      "id": 30,
+      "type": "graph",
+      "title": "CPU: requests vs limits vs usage (by namespace)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 102 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace) (kube_pod_container_resource_requests_cpu_cores{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}} requests"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (exported_namespace) (kube_pod_container_resource_limits_cpu_cores{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}} limits"
+        },
+        {
+          "refId": "C",
+          "expr": "sum by (exported_namespace) (label_replace(rate(container_cpu_usage_seconds_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]), \"exported_namespace\", \"$1\", \"namespace\", \"(.*)\"))",
+          "legendFormat": "{{exported_namespace}} usage"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "type": "graph",
+      "title": "Memory: requests vs limits vs usage (by namespace)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 102 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace) (kube_pod_container_resource_requests_memory_bytes{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}} requests"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (exported_namespace) (kube_pod_container_resource_limits_memory_bytes{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}} limits"
+        },
+        {
+          "refId": "C",
+          "expr": "sum by (exported_namespace) (label_replace(container_memory_working_set_bytes{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}, \"exported_namespace\", \"$1\", \"namespace\", \"(.*)\"))",
+          "legendFormat": "{{exported_namespace}} usage"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "type": "graph",
+      "title": "CPU requests as % of allocatable",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 110 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(kube_pod_container_resource_requests_cpu_cores{pipelineBranch=~\"$pipelineBranch\"}) / sum(kube_node_status_allocatable_cpu_cores{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "CPU requests % of allocatable"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "type": "graph",
+      "title": "Memory requests as % of allocatable",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 110 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(kube_pod_container_resource_requests_memory_bytes{pipelineBranch=~\"$pipelineBranch\"}) / sum(kube_node_status_allocatable_memory_bytes{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Mem requests % of allocatable"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "type": "row",
+      "title": "Kubernetes Objects & Controllers",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 118 }
+    },
+    {
+      "id": 35,
+      "type": "graph",
+      "title": "Kubernetes object counts",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 119 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_deployment_metadata_generation{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Deployments"
+        },
+        {
+          "refId": "B",
+          "expr": "count(kube_statefulset_metadata_generation{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "StatefulSets"
+        },
+        {
+          "refId": "C",
+          "expr": "count(kube_daemonset_metadata_generation{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "DaemonSets"
+        },
+        {
+          "refId": "D",
+          "expr": "count(kube_job_status_active{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Active Jobs"
+        },
+        {
+          "refId": "E",
+          "expr": "count(kube_service_info{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Services"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "type": "graph",
+      "title": "Deployment availability ratio",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 127 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace, deployment) (kube_deployment_status_replicas_available{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}) / sum by (exported_namespace, deployment) (kube_deployment_spec_replicas{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}}/{{deployment}}"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "type": "graph",
+      "title": "DaemonSet availability ratio",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 127 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace, daemonset) (kube_daemonset_status_number_ready{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}) / sum by (exported_namespace, daemonset) (kube_daemonset_status_desired_number_scheduled{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}}/{{daemonset}}"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "type": "graph",
+      "title": "StatefulSet availability ratio",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 135 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace, statefulset) (kube_statefulset_status_replicas_ready{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}) / sum by (exported_namespace, statefulset) (kube_statefulset_replicas{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}}/{{statefulset}}"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "type": "row",
+      "title": "Network by Namespace & Pod",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 143 }
+    },
+    {
+      "id": 40,
+      "type": "graph",
+      "title": "Namespace network throughput (bytes/s)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 144 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (rate(container_network_receive_bytes_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{namespace}} RX"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (namespace) (rate(container_network_transmit_bytes_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{namespace}} TX"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "type": "graph",
+      "title": "Top namespace network consumers (bytes/s)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 144 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace) (rate(container_network_receive_bytes_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]) + rate(container_network_transmit_bytes_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m])))",
+          "legendFormat": "{{namespace}} RX+TX"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "type": "table",
+      "title": "Top 10 network pods (RX+TX bytes/s)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 152 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace, pod) (rate(container_network_receive_bytes_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]) + rate(container_network_transmit_bytes_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m])))",
+          "legendFormat": "{{namespace}}/{{pod}}",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "type": "row",
+      "title": "Reliability & Jobs",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 160 }
+    },
+    {
+      "id": 44,
+      "type": "graph",
+      "title": "Node reboots (last 24h)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 161 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "changes(node_boot_time_seconds{pipelineBranch=~\"$pipelineBranch\"}[24h])",
+          "legendFormat": "{{instance}} reboots"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "type": "graph",
+      "title": "Job successes vs failures",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 161 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "e
