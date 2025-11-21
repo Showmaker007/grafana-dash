@@ -1,0 +1,563 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Cluster Summary",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "graph",
+      "title": "Cluster CPU usage (cores)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 1 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "Usage"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_allocatable_cpu_cores{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Allocatable"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "graph",
+      "title": "Cluster memory usage (bytes)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 1 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(container_memory_working_set_bytes{image!=\"\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Usage"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_allocatable_memory_bytes{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Allocatable"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "graph",
+      "title": "Node count (total / ready / not ready)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 8 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_node_info{pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Total"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\", status=\"true\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Ready"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\", status!=\"true\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "NotReady"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "graph",
+      "title": "Pod count (total / running / pending / failed)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 8 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_info{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Total"
+        },
+        {
+          "refId": "B",
+          "expr": "count(kube_pod_status_phase{exported_namespace=~\"$namespace\", phase=\"Running\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Running"
+        },
+        {
+          "refId": "C",
+          "expr": "count(kube_pod_status_phase{exported_namespace=~\"$namespace\", phase=\"Pending\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Pending"
+        },
+        {
+          "refId": "D",
+          "expr": "count(kube_pod_status_phase{exported_namespace=~\"$namespace\", phase=\"Failed\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Failed"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "graph",
+      "title": "Container restarts (rate)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 15 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(kube_pod_container_status_restarts_total{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "Restart rate"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "graph",
+      "title": "OOM kills (cluster-wide)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 15 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_oom_events_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "OOM events / s"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "Workload & Namespace Utilization",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 }
+    },
+    {
+      "id": 9,
+      "type": "graph",
+      "title": "CPU usage by namespace",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+      "lines": true,
+      "stack": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "graph",
+      "title": "Memory usage by namespace (bytes)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+      "lines": true,
+      "stack": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (container_memory_working_set_bytes{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Top 10 CPU pods",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 31 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m])))",
+          "instant": true,
+          "legendFormat": "{{namespace}}/{{pod}}"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Top 10 memory pods",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 31 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace, pod) (container_memory_working_set_bytes{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}))",
+          "instant": true,
+          "legendFormat": "{{namespace}}/{{pod}}"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "row",
+      "title": "Pod Scheduling & Stability",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 }
+    },
+    {
+      "id": 14,
+      "type": "graph",
+      "title": "Pod phases",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
+      "lines": true,
+      "stack": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count by (phase) (kube_pod_status_phase{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{phase}}"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "graph",
+      "title": "Pods in CrashLoopBackOff",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_container_status_waiting_reason{exported_namespace=~\"$namespace\", reason=\"CrashLoopBackOff\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "CrashLoopBackOff pods"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "graph",
+      "title": "Unschedulable pods",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 48 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(kube_pod_status_unschedulable{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "Unschedulable pods"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "type": "graph",
+      "title": "Container restarts per namespace (1h increase)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 48 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace) (increase(kube_pod_container_status_restarts_total{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[1h]))",
+          "legendFormat": "{{exported_namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "row",
+      "title": "Node Health",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 56 }
+    },
+    {
+      "id": 19,
+      "type": "graph",
+      "title": "Node CPU utilization (%)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 57 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum by (instance) (rate(node_cpu_seconds_total{mode!=\"idle\", pipelineBranch=~\"$pipelineBranch\"}[5m])) / sum by (instance) (rate(node_cpu_seconds_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "type": "graph",
+      "title": "Node memory utilization (%)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 57 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes{pipelineBranch=~\"$pipelineBranch\"} / node_memory_MemTotal_bytes{pipelineBranch=~\"$pipelineBranch\"}))",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "graph",
+      "title": "Node filesystem usage (%)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 65 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"} - node_filesystem_free_bytes{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"}) / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\", pipelineBranch=~\"$pipelineBranch\"}",
+          "legendFormat": "{{instance}} {{mountpoint}}"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "graph",
+      "title": "Node network I/O (bytes/s)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 65 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{device!~\"lo\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} RX"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{device!~\"lo\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} TX"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "row",
+      "title": "Disk IO & Deployment Health",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 73 }
+    },
+    {
+      "id": 24,
+      "type": "graph",
+      "title": "Node disk IO (reads/writes per second)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 74 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_disk_reads_completed_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} reads"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_disk_writes_completed_total{pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{instance}} writes"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "type": "graph",
+      "title": "Deployment availability ratio",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 74 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace, deployment) (kube_deployment_status_replicas_available{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}) / sum by (exported_namespace, deployment) (kube_deployment_spec_replicas{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}}/{{deployment}}"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "type": "row",
+      "title": "Requests & Limits vs Usage",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 82 }
+    },
+    {
+      "id": 27,
+      "type": "graph",
+      "title": "CPU: requests vs usage (by namespace)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 83 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace) (kube_pod_container_resource_requests_cpu_cores{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}} requests"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[5m]))",
+          "legendFormat": "{{namespace}} usage"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "type": "graph",
+      "title": "Memory: requests vs usage (by namespace)",
+      "datasource": "$DS_PROM",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 83 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace) (kube_pod_container_resource_requests_memory_bytes{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{exported_namespace}} requests"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (namespace) (container_memory_working_set_bytes{image!=\"\", namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"})",
+          "legendFormat": "{{namespace}} usage"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "kubernetes",
+    "eks",
+    "grafana-agent",
+    "cluster",
+    "pipelineBranch"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROM",
+        "type": "datasource",
+        "query": "prometheus",
+        "label": "Metrics datasource (Cortex)",
+        "refresh": 1
+      },
+      {
+        "name": "pipelineBranch",
+        "type": "query",
+        "datasource": "$DS_PROM",
+        "label": "pipelineBranch (environment)",
+        "query": "label_values(kube_pod_info, pipelineBranch)",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": false
+      },
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": "$DS_PROM",
+        "label": "Namespace",
+        "query": "label_values(kube_pod_info{pipelineBranch=~\"$pipelineBranch\"}, exported_namespace)",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "EKS Cluster Overview (Cortex / pipelineBranch)",
+  "uid": "eks-cortex-pipelinebranch-overview",
+  "version": 1
+}
