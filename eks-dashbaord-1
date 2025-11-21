@@ -1,0 +1,513 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": null,
+  "iteration": 1,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Cluster Summary",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "graph",
+      "title": "Cluster CPU usage (cores)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 1 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{job=\"integrations/kubernetes/cadvisor\", cluster=\"$cluster\", image!=\"\"}[5m]))",
+          "legendFormat": "Usage"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_allocatable_cpu_cores{job=\"prometheus-annotations\", cluster=\"$cluster\"})",
+          "legendFormat": "Allocatable"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "graph",
+      "title": "Cluster memory usage (bytes)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 1 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(container_memory_working_set_bytes{job=\"integrations/kubernetes/cadvisor\", cluster=\"$cluster\", image!=\"\"})",
+          "legendFormat": "Usage"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_allocatable_memory_bytes{job=\"prometheus-annotations\", cluster=\"$cluster\"})",
+          "legendFormat": "Allocatable"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "graph",
+      "title": "Node count (total / ready / not ready)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 8 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_node_info{job=\"prometheus-annotations\", cluster=\"$cluster\"})",
+          "legendFormat": "Total"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(kube_node_status_condition{job=\"prometheus-annotations\", cluster=\"$cluster\", condition=\"Ready\", status=\"true\"})",
+          "legendFormat": "Ready"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(kube_node_status_condition{job=\"prometheus-annotations\", cluster=\"$cluster\", condition=\"Ready\", status!=\"true\"})",
+          "legendFormat": "NotReady"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "graph",
+      "title": "Pod count (total / running / pending / failed)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 8 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_info{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\"})",
+          "legendFormat": "Total"
+        },
+        {
+          "refId": "B",
+          "expr": "count(kube_pod_status_phase{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\", phase=\"Running\"})",
+          "legendFormat": "Running"
+        },
+        {
+          "refId": "C",
+          "expr": "count(kube_pod_status_phase{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\", phase=\"Pending\"})",
+          "legendFormat": "Pending"
+        },
+        {
+          "refId": "D",
+          "expr": "count(kube_pod_status_phase{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\", phase=\"Failed\"})",
+          "legendFormat": "Failed"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "graph",
+      "title": "Container restarts (rate)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 15 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(kube_pod_container_status_restarts_total{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Restart rate"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "graph",
+      "title": "OOM kills (cluster-wide)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 15 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_oom_events_total{job=\"integrations/kubernetes/cadvisor\", cluster=\"$cluster\"}[5m]))",
+          "legendFormat": "OOM events / s"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "Workload & Namespace Utilization",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 }
+    },
+    {
+      "id": 9,
+      "type": "graph",
+      "title": "CPU usage by namespace",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+      "lines": true,
+      "stack": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{job=\"integrations/kubernetes/cadvisor\", cluster=\"$cluster\", image!=\"\", namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "{{namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "graph",
+      "title": "Memory usage by namespace (bytes)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+      "lines": true,
+      "stack": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (namespace) (container_memory_working_set_bytes{job=\"integrations/kubernetes/cadvisor\", cluster=\"$cluster\", image!=\"\", namespace=~\"$namespace\"})",
+          "legendFormat": "{{namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Top 10 CPU pods",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 31 },
+      "transformations": [],
+      "styles": [],
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{job=\"integrations/kubernetes/cadvisor\", cluster=\"$cluster\", image!=\"\", namespace=~\"$namespace\"}[5m])))",
+          "instant": true,
+          "legendFormat": "{{namespace}}/{{pod}}"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Top 10 memory pods",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 31 },
+      "transformations": [],
+      "styles": [],
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (namespace, pod) (container_memory_working_set_bytes{job=\"integrations/kubernetes/cadvisor\", cluster=\"$cluster\", image!=\"\", namespace=~\"$namespace\"}))",
+          "instant": true,
+          "legendFormat": "{{namespace}}/{{pod}}"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "row",
+      "title": "Pod Scheduling & Stability",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 }
+    },
+    {
+      "id": 14,
+      "type": "graph",
+      "title": "Pod phases",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
+      "lines": true,
+      "stack": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count by (phase) (kube_pod_status_phase{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\"})",
+          "legendFormat": "{{phase}}"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "graph",
+      "title": "Pods in CrashLoopBackOff",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(kube_pod_container_status_waiting_reason{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\", reason=\"CrashLoopBackOff\"})",
+          "legendFormat": "CrashLoopBackOff pods"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "graph",
+      "title": "Unschedulable pods",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 48 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(kube_pod_status_unschedulable{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\"})",
+          "legendFormat": "Unschedulable pods"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "type": "graph",
+      "title": "Container restarts per namespace (1h increase)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 48 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace) (increase(kube_pod_container_status_restarts_total{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\"}[1h]))",
+          "legendFormat": "{{exported_namespace}}"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "row",
+      "title": "Node Health",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 56 }
+    },
+    {
+      "id": 19,
+      "type": "graph",
+      "title": "Node CPU utilization (%)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 57 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum by (instance) (rate(node_cpu_seconds_total{cluster=\"$cluster\", job=~\".*node.*exporter.*\", mode!=\"idle\"}[5m])) / sum by (instance) (rate(node_cpu_seconds_total{cluster=\"$cluster\", job=~\".*node.*exporter.*\"}[5m]))",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "type": "graph",
+      "title": "Node memory utilization (%)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 57 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes{cluster=\"$cluster\", job=~\".*node.*exporter.*\"} / node_memory_MemTotal_bytes{cluster=\"$cluster\", job=~\".*node.*exporter.*\"}))",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "graph",
+      "title": "Node filesystem usage (%)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 65 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (node_filesystem_size_bytes{cluster=\"$cluster\", job=~\".*node.*exporter.*\", fstype!~\"tmpfs|overlay\"} - node_filesystem_free_bytes{cluster=\"$cluster\", job=~\".*node.*exporter.*\", fstype!~\"tmpfs|overlay\"}) / node_filesystem_size_bytes{cluster=\"$cluster\", job=~\".*node.*exporter.*\", fstype!~\"tmpfs|overlay\"}",
+          "legendFormat": "{{instance}} {{mountpoint}}"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "graph",
+      "title": "Node network I/O (bytes/s)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 65 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_network_receive_bytes_total{cluster=\"$cluster\", job=~\".*node.*exporter.*\", device!~\"lo\"}[5m]))",
+          "legendFormat": "{{instance}} RX"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_network_transmit_bytes_total{cluster=\"$cluster\", job=~\".*node.*exporter.*\", device!~\"lo\"}[5m]))",
+          "legendFormat": "{{instance}} TX"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "row",
+      "title": "Disk IO & Deployment Health",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 73 }
+    },
+    {
+      "id": 24,
+      "type": "graph",
+      "title": "Node disk IO (reads/writes per second)",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 74 },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (instance) (rate(node_disk_reads_completed_total{cluster=\"$cluster\", job=~\".*node.*exporter.*\"}[5m]))",
+          "legendFormat": "{{instance}} reads"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (instance) (rate(node_disk_writes_completed_total{cluster=\"$cluster\", job=~\".*node.*exporter.*\"}[5m]))",
+          "legendFormat": "{{instance}} writes"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "type": "graph",
+      "title": "Deployment availability ratio",
+      "datasource": "$DS_PROMETHEUS",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 74 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exported_namespace, deployment) (kube_deployment_status_replicas_available{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\"}) / sum by (exported_namespace, deployment) (kube_deployment_spec_replicas{job=\"prometheus-annotations\", cluster=\"$cluster\", exported_namespace=~\"$namespace\"})",
+          "legendFormat": "{{exported_namespace}}/{{deployment}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "kubernetes",
+    "eks",
+    "grafana-agent",
+    "cluster"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "label": "Prometheus datasource",
+        "refresh": 1
+      },
+      {
+        "name": "cluster",
+        "type": "query",
+        "datasource": "$DS_PROMETHEUS",
+        "label": "Cluster",
+        "query": "label_values(kube_node_status_allocatable_cpu_cores{job=\"prometheus-annotations\"}, cluster)",
+        "refresh": 2,
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": "$DS_PROMETHEUS",
+        "label": "Namespace",
+        "query": "label_values(kube_pod_info{job=\"prometheus-annotations\", cluster=\"$cluster\"}, exported_namespace)",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "EKS Cluster Overview (Grafana Agent / kube-state-metrics / cAdvisor)",
+  "uid": "eks-agent-overview",
+  "version": 1
+}
