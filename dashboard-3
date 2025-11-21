@@ -823,4 +823,84 @@
       "targets": [
         {
           "refId": "A",
-          "e
+          "expr": "sum(rate(kube_job_status_succeeded{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[1h]))",
+          "legendFormat": "Succeeded jobs / s"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(kube_job_status_failed{exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[1h]))",
+          "legendFormat": "Failed jobs / s"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "type": "graph",
+      "title": "Pod evictions (reason=Evicted)",
+      "datasource": "$DS_CORTEX",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 169 },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(kube_pod_status_reason{reason=\"Evicted\", exported_namespace=~\"$namespace\", pipelineBranch=~\"$pipelineBranch\"}[1h]))",
+          "legendFormat": "Evicted pods / s"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "kubernetes",
+    "eks",
+    "grafana-agent",
+    "cortex",
+    "pipelineBranch"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_CORTEX",
+        "type": "datasource",
+        "query": "prometheus",
+        "label": "Cortex datasource",
+        "refresh": 1
+      },
+      {
+        "name": "pipelineBranch",
+        "type": "query",
+        "datasource": "$DS_CORTEX",
+        "label": "pipelineBranch (environment)",
+        "query": "label_values(kube_pod_info, pipelineBranch)",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": false
+      },
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": "$DS_CORTEX",
+        "label": "Namespace",
+        "query": "label_values(kube_pod_info{pipelineBranch=~\"$pipelineBranch\"}, exported_namespace)",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "EKS - Full Cluster Monitoring (Cortex / pipelineBranch)",
+  "uid": "eks-full-cortex-pipelinebranch",
+  "version": 1
+}
